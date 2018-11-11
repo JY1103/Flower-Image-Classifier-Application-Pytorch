@@ -9,29 +9,19 @@ from torchvision import datasets, transforms, models
 from DataPreprocess import *
 
 ##Set Parameter 
-parser = argparse.ArgumentParser(
-    description='Image Classifier Prediction Parameters',
-)
+def get_input_para():  
+    parser = argparse.ArgumentParser(
+        description='Image Classifier Prediction Parameters',
+    )
 
-parser.add_argument('image_path', action="store")
-parser.add_argument('input', action="store")
-parser.add_argument('--top_k', action="store",default=1,type=int)
-parser.add_argument('--category_names', action="store")
-parser.add_argument('--gpu', action="store_true", default=True)
+    parser.add_argument('image_path', action="store")
+    parser.add_argument('input', action="store")
+    parser.add_argument('--top_k', action="store",default=1,type=int)
+    parser.add_argument('--category_names', action="store")
+    parser.add_argument('--gpu', action="store_true", default=True)
 
+    return parser.parse_args()
 
-parameters=parser.parse_args()
-image_path=parameters.image_path
-checkpoint_path=parameters.input
-top_k=parameters.top_k
-category_names=parameters.category_names
-gpu=parameters.gpu
-
-print (image_path)
-print (checkpoint_path)
-print (top_k)
-print (category_names)
-print (gpu)
 
 ##Load Model
 def loadModel(filePath):
@@ -57,12 +47,9 @@ def loadModel(filePath):
     model.class_to_idx=class_to_idx
     return model
 
-model=loadModel(checkpoint_path)
-
-
 ## Predict
-def predict(image_path, model, topk):
-    # TODO: Implement the code to predict the class from an image file
+def predict(image_path, model, topk,gpu,category_names=None):
+    # predict the class from an image file
     from PIL import Image
     if gpu:
         model.to("cuda")
@@ -93,5 +80,19 @@ def predict(image_path, model, topk):
     else:
         return classes_map, probs    
  
-classes,probs=predict(image_path, model, top_k)
-print (classes,probs)
+
+def main():
+    parameters=get_input_para()
+    image_path=parameters.image_path
+    checkpoint_path=parameters.input
+    top_k=parameters.top_k
+    category_names=parameters.category_names
+    gpu=parameters.gpu
+
+    model=loadModel(checkpoint_path)
+    classes,probs=predict(image_path, model, top_k,gpu,category_names)
+    print (classes,probs)
+    pass
+
+if __name__ == '__main__':
+    main()
